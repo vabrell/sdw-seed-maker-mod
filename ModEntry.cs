@@ -13,15 +13,23 @@ namespace SM_bqms
         * Constants
         */
         public readonly string DATA_KEY = "SM_bqms_seed_makers";
-        public readonly int CROP_INDEX = -75;
-        public readonly List<int> SeedsToSkip = new List<int> { 433, 771 };
+        public readonly List<SeedIds> SeedsToSkip = new List<SeedIds>
+        {
+            SeedIds.MixedSeed,
+            SeedIds.AncientSeed
+        };
+        public readonly List<CategoryIds> CategoriesToMatch = new List<CategoryIds>
+        {
+            CategoryIds.Crop,
+            CategoryIds.Fruit
+        };
         /*
         * State
         */
         public bool IsModInitialized;
         public Farmer Player;
         public List<SeedMaker> SeedMakers;
-        public StardewValley.Object LastHeldCrop;
+        public StardewValley.Object LastHeldCropOrFruit;
         /*
         * Mod Entry
         */
@@ -39,7 +47,7 @@ namespace SM_bqms
         public void ResetMod(object sender, ReturnedToTitleEventArgs e)
         {
             this.SeedMakers = null;
-            this.LastHeldCrop = null;
+            this.LastHeldCropOrFruit = null;
             this.Player = null;
             this.IsModInitialized = false;
         }
@@ -99,13 +107,15 @@ namespace SM_bqms
             {
                 if (!seedMaker.isHandled
                     && seedMaker.GameObject.heldObject.Value != null
-                    && this.LastHeldCrop != null)
+                    && this.LastHeldCropOrFruit != null)
                 {
                     int gameObjectId = seedMaker.GameObject.heldObject.Value.ParentSheetIndex;
-                    if (this.SeedsToSkip.Contains(gameObjectId)) return;
-                    seedMaker.GameObject.heldObject.Value = new StardewValley.Object(gameObjectId, this.generateSeedAmountBasedOnQuality(seedMaker.GameObject.TileLocation, this.LastHeldCrop.Quality));
+                    if ((FruitIds)this.LastHeldCropOrFruit.ParentSheetIndex != FruitIds.AncientFruit) {
+                        if (this.SeedsToSkip.Contains((SeedIds)gameObjectId)) return;
+                    }
+                    seedMaker.GameObject.heldObject.Value = new StardewValley.Object(gameObjectId, this.generateSeedAmountBasedOnQuality(seedMaker.GameObject.TileLocation, this.LastHeldCropOrFruit.Quality));
                     seedMaker.isHandled = true;
-                    this.LastHeldCrop = null;
+                    this.LastHeldCropOrFruit = null;
                 }
                 if (seedMaker.isHandled
                     && seedMaker.GameObject.heldObject.Value == null)
@@ -116,12 +126,12 @@ namespace SM_bqms
             StardewValley.Object activeObject = this.Player.ActiveObject;
             if (activeObject == null)
             {
-                this.LastHeldCrop = null;
+                this.LastHeldCropOrFruit = null;
                 return;
             }
-            if (activeObject.Category == this.CROP_INDEX)
+            if (this.CategoriesToMatch.Contains((CategoryIds)activeObject.Category))
             {
-                this.LastHeldCrop = activeObject;
+                this.LastHeldCropOrFruit = activeObject;
             }
         }
         public int generateSeedAmountBasedOnQuality(Vector2 location, int quality)
