@@ -5,6 +5,7 @@ using System.Linq;
 using StardewModdingAPI;
 using HarmonyLib;
 using StardewValley;
+using SM_bqms;
 
 namespace SM_bqms
 {
@@ -69,6 +70,11 @@ namespace SM_bqms
                     {
                         __result = false;
                         return false;
+                    }
+                    SeedMaker seedMaker = ModEntry.SeedMakers.First((sm) => sm.GameObject.TileLocation == machine.TileLocation);
+                    if (seedMaker != null)
+                    {
+                        seedMaker.isHandled = true;
                     }
                     Type Consumable = type.Assembly.GetType("Pathoschild.Stardew.Automate.Framework.Consumable");
                     MethodInfo Take = Consumable.GetMethod("Take", bindingFlags);

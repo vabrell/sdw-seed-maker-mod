@@ -27,7 +27,7 @@ namespace SM_bqms
         */
         private bool IsModInitialized;
         private Farmer Player;
-        private List<SeedMaker> SeedMakers;
+        public static List<SeedMaker> SeedMakers;
         private StardewValley.Object LastHeldCropOrFruit;
         /*
         * Mod Entry
@@ -50,7 +50,7 @@ namespace SM_bqms
         */
         private void ResetMod(object sender, ReturnedToTitleEventArgs e)
         {
-            this.SeedMakers = null;
+            SeedMakers = null;
             this.LastHeldCropOrFruit = null;
             this.Player = null;
             this.IsModInitialized = false;
@@ -73,7 +73,7 @@ namespace SM_bqms
                     }
                 }
             }
-            this.SeedMakers = seedMakers;
+            SeedMakers = seedMakers;
             this.Player = Game1.player;
             this.IsModInitialized = true;
         }
@@ -91,7 +91,7 @@ namespace SM_bqms
                         GameObject = gameObject.Value,
                         isHandled = false,
                     };
-                    this.SeedMakers.Add(seedMaker);
+                    SeedMakers.Add(seedMaker);
                 }
             }
             foreach (KeyValuePair<Vector2, StardewValley.Object> gameObject in e.Removed)
@@ -101,7 +101,7 @@ namespace SM_bqms
                     {
                         GameObject = gameObject.Value,
                     };
-                    this.SeedMakers.Remove(seedMaker);
+                    SeedMakers.Remove(seedMaker);
                 }
             }
         }
@@ -109,7 +109,7 @@ namespace SM_bqms
         {
             if (!Context.IsWorldReady) return;
             if (!this.IsModInitialized) return;
-            foreach (SeedMaker seedMaker in this.SeedMakers)
+            foreach (SeedMaker seedMaker in SeedMakers)
             {
                 if (!seedMaker.isHandled
                     && seedMaker.GameObject.heldObject.Value != null
