@@ -2,8 +2,8 @@ namespace SM_bqms
 {
     public enum SeedIds
     {
-        MixedSeed = 433,
-        AncientSeed = 771,
+        AncientSeed = 449,
+        MixedSeed = 770,
     }
     public enum FruitIds
     {

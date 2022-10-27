@@ -12,13 +12,12 @@ namespace SM_bqms
         /*
         * Constants
         */
-        public readonly string DATA_KEY = "SM_bqms_seed_makers";
-        public readonly List<SeedIds> SeedsToSkip = new List<SeedIds>
+        private readonly List<SeedIds> SeedsToSkip = new List<SeedIds>
         {
             SeedIds.MixedSeed,
             SeedIds.AncientSeed
         };
-        public readonly List<CategoryIds> CategoriesToMatch = new List<CategoryIds>
+        private readonly List<CategoryIds> CategoriesToMatch = new List<CategoryIds>
         {
             CategoryIds.Crop,
             CategoryIds.Fruit
@@ -26,10 +25,10 @@ namespace SM_bqms
         /*
         * State
         */
-        public bool IsModInitialized;
-        public Farmer Player;
-        public List<SeedMaker> SeedMakers;
-        public StardewValley.Object LastHeldCropOrFruit;
+        private bool IsModInitialized;
+        private Farmer Player;
+        private List<SeedMaker> SeedMakers;
+        private StardewValley.Object LastHeldCropOrFruit;
         /*
         * Mod Entry
         */
@@ -40,18 +39,23 @@ namespace SM_bqms
 
             helper.Events.World.ObjectListChanged += this.UpdateSeedMakers;
             helper.Events.GameLoop.UpdateTicking += this.WatchSeedMakers;
+
+            if (helper.ModRegistry.IsLoaded("Pathoschild.Automate")) {
+                this.Monitor.Log("This mod patches Automate. If you notice issues with Automate, make sure it happens without this mod before reporting it to the Automate page.", LogLevel.Debug);
+                AutomateSeedMakerMachinePatcher.Initialize(helper, this.Monitor, this.ModManifest.UniqueID);
+            }
         }
         /*
         * Mod state handling
         */
-        public void ResetMod(object sender, ReturnedToTitleEventArgs e)
+        private void ResetMod(object sender, ReturnedToTitleEventArgs e)
         {
             this.SeedMakers = null;
             this.LastHeldCropOrFruit = null;
             this.Player = null;
             this.IsModInitialized = false;
         }
-        public void InitMod(object sender, SaveLoadedEventArgs e)
+        private void InitMod(object sender, SaveLoadedEventArgs e)
         {
             List<SeedMaker> seedMakers = new List<SeedMaker>();
             foreach(GameLocation loc in Game1.locations)
@@ -76,8 +80,9 @@ namespace SM_bqms
         /*
         * Seed Maker handlers
         */
-        public void UpdateSeedMakers(object sender, ObjectListChangedEventArgs e)
+        private void UpdateSeedMakers(object sender, ObjectListChangedEventArgs e)
         {
+            if (!Context.IsWorldReady) return;
             foreach (KeyValuePair<Vector2, StardewValley.Object> gameObject in e.Added)
             {
                 if (gameObject.Value.Name == "Seed Maker") {
@@ -100,8 +105,9 @@ namespace SM_bqms
                 }
             }
         }
-        public void WatchSeedMakers(object sender, UpdateTickingEventArgs e)
+        private void WatchSeedMakers(object sender, UpdateTickingEventArgs e)
         {
+            if (!Context.IsWorldReady) return;
             if (!this.IsModInitialized) return;
             foreach (SeedMaker seedMaker in this.SeedMakers)
             {
@@ -134,7 +140,7 @@ namespace SM_bqms
                 this.LastHeldCropOrFruit = activeObject;
             }
         }
-        public int generateSeedAmountBasedOnQuality(Vector2 location, int quality)
+        private int generateSeedAmountBasedOnQuality(Vector2 location, int quality)
         {
             Random r2 = new Random(
                 (int)Game1.stats.DaysPlayed
