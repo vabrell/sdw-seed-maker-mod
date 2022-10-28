@@ -126,7 +126,9 @@ namespace SM_bqms
             BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
             IDictionary<int, int> SeedLookup = (IDictionary<int, int>)type.GetField("SeedLookup", bindingFlags).GetValue(Instance);
             Enum ItemType = (Enum)item.GetType().GetProperty("Type", bindingFlags).GetValue(item);
-            StardewValley.Object Item = (StardewValley.Object)item.GetType().GetProperty("Sample", bindingFlags).GetValue(item);
+            object sampleItem = item.GetType().GetProperty("Sample", bindingFlags).GetValue(item);
+            if(sampleItem.GetType().ToString() != "StardewValley.Object") return false;
+            StardewValley.Object Item = (StardewValley.Object)sampleItem;
             Type PItems = type.Assembly.GetType("Pathoschild.Stardew.Automate.ItemType");
             var result = ItemType.GetType() == PItems.GetField("Object").GetValue(null).GetType()
                 && Item.ParentSheetIndex != 433 // coffee beans
