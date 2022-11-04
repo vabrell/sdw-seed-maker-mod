@@ -36,7 +36,7 @@ namespace SM_bqms
             helper.Events.GameLoop.UpdateTicking += this.WatchSeedMakers;
 
             if (helper.ModRegistry.IsLoaded("Pathoschild.Automate")) {
-                this.Monitor.Log("This mod patches Automate. If you notice issues with Automate, make sure it happens without this mod before reporting it to the Automate page.", LogLevel.Debug);
+                this.Monitor.Log("This mod patches Automate. If you notice issues with Automate, make sure it happens without this mod before reporting it to the Automate page.\n", LogLevel.Debug);
                 AutomateSeedMakerMachinePatcher.Initialize(helper, this.Monitor, this.ModManifest.UniqueID);
             }
         }
@@ -127,14 +127,15 @@ namespace SM_bqms
             StardewValley.Object activeObject = this.Player.ActiveObject;
             if (activeObject == null)
             {
-                this.LastHeldCropOrFruit = null;
                 return;
             }
             SM_Helper.UpdateSeedLookupCache();
             if (SM_Helper.SeedLookupCache.ContainsKey(activeObject.ParentSheetIndex))
             {
                 this.LastHeldCropOrFruit = activeObject;
+                return;
             }
+            this.LastHeldCropOrFruit = null;
         }
     }
 }

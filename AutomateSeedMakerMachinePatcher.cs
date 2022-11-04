@@ -129,7 +129,6 @@ namespace SM_bqms
             object sampleItem = item.GetType().GetProperty("Sample", bindingFlags).GetValue(item);
             if(sampleItem.GetType().ToString() != "StardewValley.Object")
             {
-                Monitor.Log($"Item type: {sampleItem.GetType()}", LogLevel.Warn);
                 return false;
             }
             StardewValley.Object Item = (StardewValley.Object)sampleItem;
