@@ -127,7 +127,11 @@ namespace SM_bqms
             IDictionary<int, int> SeedLookup = (IDictionary<int, int>)type.GetField("SeedLookup", bindingFlags).GetValue(Instance);
             Enum ItemType = (Enum)item.GetType().GetProperty("Type", bindingFlags).GetValue(item);
             object sampleItem = item.GetType().GetProperty("Sample", bindingFlags).GetValue(item);
-            if(sampleItem.GetType().ToString() != "StardewValley.Object") return false;
+            if(sampleItem.GetType().ToString() != "StardewValley.Object")
+            {
+                Monitor.Log($"Item type: {sampleItem.GetType()}", LogLevel.Warn);
+                return false;
+            }
             StardewValley.Object Item = (StardewValley.Object)sampleItem;
             Type PItems = type.Assembly.GetType("Pathoschild.Stardew.Automate.ItemType");
             var result = ItemType.GetType() == PItems.GetField("Object").GetValue(null).GetType()

@@ -9,9 +9,4 @@ namespace SM_bqms
     {
         AncientFruit = 454,
     }
-    public enum CategoryIds
-    {
-        Fruit = -79,
-        Crop = -75,
-    }
 }

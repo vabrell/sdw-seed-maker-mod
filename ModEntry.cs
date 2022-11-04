@@ -17,11 +17,6 @@ namespace SM_bqms
             SeedIds.MixedSeed,
             SeedIds.AncientSeed
         };
-        private readonly List<CategoryIds> CategoriesToMatch = new List<CategoryIds>
-        {
-            CategoryIds.Crop,
-            CategoryIds.Fruit
-        };
         /*
         * State
         */
@@ -119,7 +114,7 @@ namespace SM_bqms
                     if ((FruitIds)this.LastHeldCropOrFruit.ParentSheetIndex != FruitIds.AncientFruit) {
                         if (this.SeedsToSkip.Contains((SeedIds)gameObjectId)) return;
                     }
-                    seedMaker.GameObject.heldObject.Value = new StardewValley.Object(gameObjectId, this.generateSeedAmountBasedOnQuality(seedMaker.GameObject.TileLocation, this.LastHeldCropOrFruit.Quality));
+                    seedMaker.GameObject.heldObject.Value = new StardewValley.Object(gameObjectId, SM_Helper.generateSeedAmountBasedOnQuality(seedMaker.GameObject.TileLocation, this.LastHeldCropOrFruit.Quality));
                     seedMaker.isHandled = true;
                     this.LastHeldCropOrFruit = null;
                 }
@@ -135,20 +130,11 @@ namespace SM_bqms
                 this.LastHeldCropOrFruit = null;
                 return;
             }
-            if (this.CategoriesToMatch.Contains((CategoryIds)activeObject.Category))
+            SM_Helper.UpdateSeedLookupCache();
+            if (SM_Helper.SeedLookupCache.ContainsKey(activeObject.ParentSheetIndex))
             {
                 this.LastHeldCropOrFruit = activeObject;
             }
-        }
-        private int generateSeedAmountBasedOnQuality(Vector2 location, int quality)
-        {
-            Random r2 = new Random(
-                (int)Game1.stats.DaysPlayed
-                + (int)Game1.uniqueIDForThisGame / 2
-                + (int)location.X
-                + (int)location.Y * 77
-                + Game1.timeOfDay);
-            return r2.Next(quality + 1, 4 + quality);
         }
     }
 }
