@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using System.Linq;
-using System.Threading.Tasks;
 using StardewValley;
 
 namespace SM_bqms
@@ -12,6 +10,7 @@ namespace SM_bqms
         private static int LastCacheCount;
         private static int LastCacheTick;
         public static readonly IDictionary<int, int> SeedLookupCache = new Dictionary<int, int>();
+        private ModConfig Config;
         public static void UpdateSeedLookupCache()
         {
             if (Game1.ticks > LastCacheTick)
@@ -36,13 +35,32 @@ namespace SM_bqms
         }
         public static int generateSeedAmountBasedOnQuality(Vector2 location, int quality)
         {
+            int modifier;
+            switch (quality)
+            {
+                case 1: 
+                    modifier = ModEntry.Config.NormalModifier;
+                break; 
+                case 2: 
+                    modifier = ModEntry.Config.SilverModifier;
+                break; 
+                case 3: 
+                    modifier = ModEntry.Config.GoldModifier;
+                break; 
+                case 4: 
+                    modifier = ModEntry.Config.IridiumModifier;
+                break; 
+                default:
+                    modifier = 0;
+                break;
+            }
             Random r2 = new Random(
                 (int)Game1.stats.DaysPlayed
                 + (int)Game1.uniqueIDForThisGame / 2
                 + (int)location.X
                 + (int)location.Y * 77
                 + Game1.timeOfDay);
-            return r2.Next(quality + 1, 4 + quality);
+            return r2.Next(1 + modifier, 4 + modifier);
         }
     }
 }

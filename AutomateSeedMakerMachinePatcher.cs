@@ -23,7 +23,6 @@ namespace SM_bqms
             Monitor = monitor;
             Helper = helper;
             ModID = modID;
-            
 
             helper.Events.GameLoop.GameLaunched += RegisterPatch;
         }
@@ -86,9 +85,10 @@ namespace SM_bqms
                         return false;
                     }
                     int seedID = SeedLookup[item.ParentSheetIndex];
+                    int cropModifier = GetCropModifier(item.Quality);
 
                     Random random = new Random((int)Game1.stats.DaysPlayed + (int)Game1.uniqueIDForThisGame / 2 + (int)machine.TileLocation.X + (int)machine.TileLocation.Y * 77 + Game1.timeOfDay);
-                    machine.heldObject.Value = new StardewValley.Object(seedID, random.Next(1 + item.Quality, 4 + item.Quality));
+                    machine.heldObject.Value = new StardewValley.Object(seedID, random.Next(1 + cropModifier, 4 + cropModifier));
                     if (random.NextDouble() < 0.005)
                         machine.heldObject.Value = new StardewValley.Object(499, 1);
                     else if (random.NextDouble() < 0.02)
@@ -138,6 +138,29 @@ namespace SM_bqms
                 && Item.ParentSheetIndex != 771 // fiber
                 && SeedLookup.ContainsKey(Item.ParentSheetIndex);
             return result;
+        }
+        private static int GetCropModifier(int quality)
+        {
+            int modifier;
+            switch (quality)
+            {
+                case 1: 
+                    modifier = ModEntry.Config.NormalModifier;
+                break; 
+                case 2: 
+                    modifier = ModEntry.Config.SilverModifier;
+                break; 
+                case 3: 
+                    modifier = ModEntry.Config.GoldModifier;
+                break; 
+                case 4: 
+                    modifier = ModEntry.Config.IridiumModifier;
+                break; 
+                default:
+                    modifier = 0;
+                break;
+            }
+            return modifier;
         }
     }
 }

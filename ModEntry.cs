@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
+using GenericModConfigMenu;
 
 namespace SM_bqms
 {
@@ -24,11 +25,13 @@ namespace SM_bqms
         private Farmer Player;
         public static List<SeedMaker> SeedMakers;
         private StardewValley.Object LastHeldCropOrFruit;
+        public static ModConfig Config;
         /*
         * Mod Entry
         */
         public override void Entry(IModHelper helper)
         {
+            helper.Events.GameLoop.GameLaunched += this.PreInitMod;
             helper.Events.GameLoop.ReturnedToTitle += this.ResetMod;
             helper.Events.GameLoop.SaveLoaded += this.InitMod;
 
@@ -49,6 +52,48 @@ namespace SM_bqms
             this.LastHeldCropOrFruit = null;
             this.Player = null;
             this.IsModInitialized = false;
+        }
+        private void PreInitMod(object sender, GameLaunchedEventArgs e)
+        {
+            Config = this.Helper.ReadConfig<ModConfig>();
+            var configMenu = this.Helper.ModRegistry.GetApi<IGenericModConfigMenuApi>("spacechase0.GenericModConfigMenu");
+            if (configMenu is not null)
+            {
+                configMenu.Register(
+                    mod: this.ModManifest,
+                    reset: () => Config = new ModConfig(),
+                    save: () => Helper.WriteConfig(Config)
+                );
+
+                configMenu.AddNumberOption(
+                    mod: this.ModManifest,
+                    name: () => "Normal Modifier",
+                    tooltip: () => "The modifier that will be used for normal crops",
+                    getValue: () => Config.NormalModifier,
+                    setValue: (value) => Config.NormalModifier = value
+                );
+                configMenu.AddNumberOption(
+                    mod: this.ModManifest,
+                    name: () => "Silver Modifier",
+                    tooltip: () => "The modifier that will be used for silver crops",
+                    getValue: () => Config.SilverModifier,
+                    setValue: (value) => Config.SilverModifier = value
+                );
+                configMenu.AddNumberOption(
+                    mod: this.ModManifest,
+                    name: () => "Gold Modifier",
+                    tooltip: () => "The modifier that will be used for gold crops",
+                    getValue: () => Config.GoldModifier,
+                    setValue: (value) => Config.GoldModifier = value
+                );
+                configMenu.AddNumberOption(
+                    mod: this.ModManifest,
+                    name: () => "Iridium Modifier",
+                    tooltip: () => "The modifier that will be used for iridium crops",
+                    getValue: () => Config.IridiumModifier,
+                    setValue: (value) => Config.IridiumModifier = value
+                );
+            }
         }
         private void InitMod(object sender, SaveLoadedEventArgs e)
         {
