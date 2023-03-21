@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using StardewValley;
+using StardewModdingAPI;
 
 namespace SM_bqms
 {
@@ -33,7 +34,7 @@ namespace SM_bqms
                 LastCacheTick = Game1.ticks;
             }
         }
-        public static int generateSeedAmountBasedOnQuality(Vector2 location, int quality)
+        public static int generateSeedAmountBasedOnQuality(Vector2 location, int quality, Boolean enableDebug, IMonitor monitor)
         {
             int modifier;
             switch (quality)
@@ -61,7 +62,14 @@ namespace SM_bqms
                 + (int)location.X
                 + (int)location.Y * 77
                 + Game1.timeOfDay);
-            return r2.Next(1 + modifier, 4 + modifier);
+
+            int amount = r2.Next(1 + modifier, 4 + modifier);
+
+            if (enableDebug) {
+                monitor.Log($"\nSeedMaker at {location.ToString()}\nQuanity: {quality}\nModifier: {modifier}\nSeeds: {amount}\n", LogLevel.Debug);
+            }
+
+            return amount;
         }
     }
 }

@@ -75,24 +75,45 @@ namespace SM_bqms
                     {
                         seedMaker.isHandled = true;
                     }
+
                     Type Consumable = type.Assembly.GetType("Pathoschild.Stardew.Automate.Framework.Consumable");
                     MethodInfo Take = Consumable.GetMethod("Take", bindingFlags);
                     StardewValley.Object item = (StardewValley.Object)Take.Invoke(crop, new object[] {});
                     IDictionary<int, int> SeedLookup = (IDictionary<int, int>)type.GetField("SeedLookup", bindingFlags).GetValue(Instance) ?? new Dictionary<int, int>();
+                    if (ModEntry.Config.EnableDebug) {
+                        Monitor.Log($"Automate patch: Seed validation", LogLevel.Debug);
+                    }
                     if (SeedLookup == null)
                     {
+                        if (ModEntry.Config.EnableDebug) {
+                            Monitor.Log($"Automate patch: No valid seed for game object", LogLevel.Debug);
+                        }
                         __result = false;
                         return false;
+                    }
+                    if (ModEntry.Config.EnableDebug) {
+                        Monitor.Log($"Automate patch: Valid seed found", LogLevel.Debug);
                     }
                     int seedID = SeedLookup[item.ParentSheetIndex];
                     int cropModifier = GetCropModifier(item.Quality);
 
                     Random random = new Random((int)Game1.stats.DaysPlayed + (int)Game1.uniqueIDForThisGame / 2 + (int)machine.TileLocation.X + (int)machine.TileLocation.Y * 77 + Game1.timeOfDay);
-                    machine.heldObject.Value = new StardewValley.Object(seedID, random.Next(1 + cropModifier, 4 + cropModifier));
-                    if (random.NextDouble() < 0.005)
+                    int amount = random.Next(1 + cropModifier, 4 + cropModifier);
+                    machine.heldObject.Value = new StardewValley.Object(seedID, amount);
+                    if (ModEntry.Config.EnableDebug) {
+                        Monitor.Log($"\nAutomate patch: SeedMaker at {machine.TileLocation.ToString()}\nQuanity: {item.Quality}\nModifier: {cropModifier}\nSeeds: {amount}\n", LogLevel.Debug);
+                    }
+                    if (random.NextDouble() < 0.005) {
                         machine.heldObject.Value = new StardewValley.Object(499, 1);
-                    else if (random.NextDouble() < 0.02)
+                        if (ModEntry.Config.EnableDebug) {
+                            Monitor.Log($"\nAutomate patch: SeedMaker at {machine.TileLocation.ToString()} Ancient Seeds chance triggered\n", LogLevel.Debug);
+                        }
+                    } else if (random.NextDouble() < 0.02) {
                         machine.heldObject.Value = new StardewValley.Object(770, random.Next(1, 5));
+                        if (ModEntry.Config.EnableDebug) {
+                            Monitor.Log($"\nAutomate patch: SeedMaker at {machine.TileLocation.ToString()} Mixed Seeds chance triggered\n", LogLevel.Debug);
+                        }
+                    }
                     machine.MinutesUntilReady = 20;
                     __result = true;
                     return false;
