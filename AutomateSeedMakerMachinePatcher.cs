@@ -70,7 +70,16 @@ namespace SM_bqms
                         __result = false;
                         return false;
                     }
-                    SeedMaker seedMaker = ModEntry.SeedMakers.First((sm) => sm.GameObject.TileLocation == machine.TileLocation);
+                    int seedMakerIndex = ModEntry.SeedMakers.FindIndex((sm) => sm.GameObject.TileLocation == machine.TileLocation);
+                    if (seedMakerIndex < 0) {
+                        SeedMaker newSeedMaker = new SeedMaker() {
+                            GameObject = machine,
+                            isHandled = false,
+                        };
+                        ModEntry.SeedMakers.Add(newSeedMaker);
+                        seedMakerIndex = ModEntry.SeedMakers.LastIndexOf(newSeedMaker);
+                    }
+                    SeedMaker seedMaker = ModEntry.SeedMakers[seedMakerIndex];
                     if (seedMaker != null)
                     {
                         seedMaker.isHandled = true;
@@ -135,6 +144,7 @@ namespace SM_bqms
             object[] parameters = new object[] { predicate, count, null};
             object result = tryGetIngredient.Invoke(input, parameters);
             consumable = parameters[2];
+
             if (consumable == null)
             {
                 return false;
@@ -148,7 +158,12 @@ namespace SM_bqms
             IDictionary<int, int> SeedLookup = (IDictionary<int, int>)type.GetField("SeedLookup", bindingFlags).GetValue(Instance);
             Enum ItemType = (Enum)item.GetType().GetProperty("Type", bindingFlags).GetValue(item);
             object sampleItem = item.GetType().GetProperty("Sample", bindingFlags).GetValue(item);
-            if(sampleItem.GetType().ToString() != "StardewValley.Object")
+            List<string> validObjects = new List<string>(new string[] {"StardewValley.Object", "StardewValley.Objects.ColoredObject"});
+            if (ModEntry.Config.EnableDebug) {
+                Monitor.Log($"Automate patch: ItemName - {sampleItem.GetType().GetProperty("name")} :: ItemType {sampleItem.GetType()}", LogLevel.Debug);
+                Monitor.Log($"Automate patch: ValidObjects - {String.Join(", ", validObjects.ToArray())}", LogLevel.Debug);
+            }
+            if(!validObjects.Contains(sampleItem.GetType().ToString()))
             {
                 return false;
             }
